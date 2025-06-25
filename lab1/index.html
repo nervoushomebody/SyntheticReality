@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Візитівка - Котятки рожевятки</title>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-three.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+    <style>
+        html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; }
+        canvas { display: block; }
+        #instructions { 
+            position: absolute; 
+            bottom: 20px; 
+            left: 20px; 
+            color: white; 
+            /* --- ЗМІНЕНО КОЛІР ІНСТРУКЦІЇ --- */
+            background: rgba(244, 198, 198, 0.8); /* #f4c6c6 з прозорістю */
+            padding: 10px; 
+            border-radius: 5px; 
+            font-size: 14px; 
+            z-index: 1000; 
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div id="instructions">Наведіть камеру на AR-маркер</div>
+
+    <script>
+        // Допоміжна функція для створення текстур
+        const createTextTexture = (text, fontSize = 64, color = '#ffffff', bgColor = '#000000') => {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = 1024;
+            canvas.height = 256;
+            
+            context.fillStyle = bgColor;
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            
+            context.fillStyle = color;
+            context.font = `bold ${fontSize}px Arial`;
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            
+            const lines = text.split('\n');
+            lines.forEach((line, index) => {
+                context.fillText(line, canvas.width / 2, canvas.height / 2 + (index - (lines.length - 1) / 2) * fontSize * 1.1);
+            });
+
+            return new THREE.CanvasTexture(canvas);
+        };
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const mindarThree = new window.MINDAR.IMAGE.MindARThree({
+                container: document.body,
+                imageTargetSrc: "./targets.mind",
+            });
+
+            const { renderer, scene, camera } = mindarThree;
+            const anchor = mindarThree.addAnchor(0);
+            const group = new THREE.Group();
+            anchor.group.add(group);
+
+            const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1.2); // Трохи більше світла
+            scene.add(light);
+
+            // --- ОСНОВНІ ЕЛЕМЕНТИ З НОВОЮ ПАЛІТРОЮ ---
+
+            // 1. Основна картка з іменем
+            const cardGeometry = new THREE.PlaneGeometry(1, 0.5);
+            // --- ЗМІНЕНО КОЛЬОРИ КАРТКИ ---
+            const cardTexture = createTextTexture(
+                'Юлія\nПрофесіональний прокрастинатор', 
+                48, 
+                '#a37b73', // Теплий коричневий текст для читабельності
+                '#fce7e7'  // Фон #fce7e7
+            );
+            const cardMaterial = new THREE.MeshBasicMaterial({ map: cardTexture });
+            const businessCard = new THREE.Mesh(cardGeometry, cardMaterial);
+            group.add(businessCard);
+
+            // 2. Іконки-кнопки
+            const iconSize = 0.2;
+            const iconGeometry = new THREE.PlaneGeometry(iconSize, iconSize);
+
+            // Кнопка "Email" з лапкою
+            // --- ЗМІНЕНО КОЛЬОРИ КНОПКИ 1 ---
+            const emailTexture = createTextTexture('🐾', 100, '#ffffff', '#ffcdc1'); // Біла лапка на фоні #ffcdc1
+            const emailMaterial = new THREE.MeshBasicMaterial({ map: emailTexture });
+            const emailIcon = new THREE.Mesh(iconGeometry, emailMaterial);
+            emailIcon.position.set(-0.3, -0.4, 0.01);
+            emailIcon.userData = { 
+                clickable: true, 
+                action: 'link', 
+                url: 'mailto:vash.email@example.com'
+            };
+            group.add(emailIcon);
+
+            // Кнопка "Посилання" з лапкою
+            // --- ЗМІНЕНО КОЛЬОРИ КНОПКИ 2 ---
+            const linkTexture = createTextTexture('🐾', 100, '#ffffff', '#ffb9b9'); // Біла лапка на фоні #ffb9b9
+            const linkMaterial = new THREE.MeshBasicMaterial({ map: linkTexture });
+            const linkIcon = new THREE.Mesh(iconGeometry, linkMaterial);
+            linkIcon.position.set(0.3, -0.4, 0.01);
+            linkIcon.userData = { 
+                clickable: true, 
+                action: 'link', 
+                url: 'https://github.com/nervoushomebody'
+            };
+            group.add(linkIcon);
+
+            // --- ОБРОБКА НАТИСКАНЬ ---
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+
+            const handleClick = (event) => {
+                const clientX = event.clientX || event.touches[0].clientX;
+                const clientY = event.clientY || event.touches[0].clientY;
+                mouse.x = (clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(clientY / window.innerHeight) * 2 + 1;
+
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(group.children, true);
+
+                if (intersects.length > 0) {
+                    const object = intersects[0].object;
+                    if (object.userData.clickable && object.userData.action === 'link') {
+                        window.open(object.userData.url, '_blank');
+                    }
+                }
+            };
+
+            document.addEventListener('click', handleClick);
+            document.addEventListener('touchend', (e) => handleClick(e.changedTouches[0]));
+
+            // --- ЗАПУСК І АНІМАЦІЯ ---
+            const clock = new THREE.Clock();
+            await mindarThree.start();
+            
+            renderer.setAnimationLoop(() => {
+                const elapsedTime = clock.getElapsedTime();
+                const scale = 1 + Math.sin(elapsedTime * 5) * 0.1;
+                emailIcon.scale.set(scale, scale, 1);
+                linkIcon.scale.set(scale, scale, 1);
+                renderer.render(scene, camera);
+            });
+        });
+    </script>
+</body>
+</html>
