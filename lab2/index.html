@@ -6,7 +6,7 @@
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-face-aframe.prod.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function() {
-	const list = ["glasses1", "glasses2", "hat1", "hat2", "earring"];
+	const list = ["glasses1", "glasses2", "hat1", "hat2", "hat3", "earring"];
 	const visibles = [true, false, false, true, true];
 	const setVisible = (button, entities, visible) => {
 	  if (visible) {
@@ -62,6 +62,7 @@
       <div class="options-panel">
 	<img id="hat1" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/face-tracking/assets/hat/thumbnail.png"/>
 	<img id="hat2" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/face-tracking/assets/hat2/thumbnail.png"/>
+	<img id="hat3" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/face-tracking/assets/hat2/thumbnail.png"/>
 	<img id="glasses1" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/face-tracking/assets/glasses/thumbnail.png"/>
 	<img id="glasses2" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/face-tracking/assets/glasses2/thumbnail.png"/>
 	<img id="earring" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/face-tracking/assets/earring/thumbnail.png"/>
@@ -71,8 +72,9 @@
           <a-asset-item id="headModel" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/face-tracking/assets/sparkar/headOccluder.glb"></a-asset-item>
           <a-asset-item id="glassesModel" src="../models/kitsune_mask.glb"></a-asset-item>
           <a-asset-item id="glassesModel2" src="../models/japanese_kitsune_mask.glb"></a-asset-item>
-          <a-asset-item id="hatModel" src="../models/plague_mask.glb"></a-asset-item>
+          <a-asset-item id="hatModel" src="../models/minecraft_empty_freddy_head.glb"></a-asset-item>
           <a-asset-item id="hatModel2" src="../models/aphmau_cat_ears.glb"></a-asset-item>
+	  <a-asset-item id="hatModel3" src="../models/plague_mask.glb"></a-asset-item>
           <a-asset-item id="earringModel" src="../models/cat_ears.glb"></a-asset-item>
         </a-assets>
         <a-camera active="false" position="0 0 0"></a-camera>
@@ -84,8 +86,11 @@
 	  <a-gltf-model rotation="0 -0 0" position="0.85 -1.05 0" scale="1.35 1.35 1.35" src="#hatModel" class="hat1-entity" visible="false"></a-gltf-model>
         </a-entity>
         <a-entity mindar-face-target="anchorIndex: 10">
-	  <a-gltf-model rotation="0 -0 0" position="0 0 0" scale="0.8 0.8 0.8" src="#hatModel2" class="hat2-entity" visible="false"></a-gltf-model>
+	  <a-gltf-model rotation="0 -0 0" position="0 -3 0" scale="1.8 1.8 1.8" src="#hatModel2" class="hat2-entity" visible="false"></a-gltf-model>
         </a-entity>
+	<a-entity mindar-face-target="anchorIndex: 101">
+	  <a-gltf-model rotation="0 -0 0" position="0 0 0" scale="8.8 8.8 8.8" src="#hatModel3" class="hat3-entity" visible="false"></a-gltf-model>
+        </a-entity>      
         <a-entity mindar-face-target="anchorIndex: 168">
 	  <a-gltf-model rotation="0 -0 0" position="0 -0.10 0" scale="1.1 1.1 1.1" src="#glassesModel" class="glasses1-entity" visible="false"></a-gltf-model>
         </a-entity>
