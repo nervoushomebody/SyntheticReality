@@ -28,14 +28,26 @@
         });
 
         const shareButton = document.querySelector("#share-button");
-        shareButton.addEventListener('click', async () => {
-          if (!navigator.share) {
-            alert("Ваш браузер не підтримує функцію поширення.");
-            return;
-          }
-
-          const canvas = document.querySelector('a-scene').canvas;
-          canvas.toBlob(async (blob) => {
+        shareButton.addEventListener('click', () => {
+          const video = document.querySelector("video");
+          const arCanvas = document.querySelector("a-scene").canvas;
+          
+          const tempCanvas = document.createElement("canvas");
+          const tempCtx = tempCanvas.getContext("2d");
+          
+          const width = arCanvas.width;
+          const height = ar-canvas.height;
+          tempCanvas.width = width;
+          tempCanvas.height = height;
+          
+          tempCtx.drawImage(video, 0, 0, width, height);
+          tempCtx.drawImage(arCanvas, 0, 0, width, height);
+          
+          tempCanvas.toBlob(async (blob) => {
+            if (!navigator.share) {
+              alert("Ваш браузер не підтримує функцію поширення.");
+              return;
+            }
             const file = new File([blob], 'ar-selfie.png', { type: 'image/png' });
             const shareData = {
               files: [file],
